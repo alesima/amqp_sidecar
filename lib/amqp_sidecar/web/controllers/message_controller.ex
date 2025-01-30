@@ -4,12 +4,10 @@ defmodule AmqpSidecar.Web.Controllers.MessageController do
   Handles the message publishing endpoint
   """
 
-  use Plug.Router
+  import Plug.Conn
   alias AmqpSidecar.Publisher
 
-  plug(:match)
-  plug(:dispatch)
-
+  @spec publish(Plug.Conn.t()) :: Plug.Conn.t()
   def publish(conn) do
     case read_body(conn) do
       {:ok, body, conn} ->
@@ -20,7 +18,7 @@ defmodule AmqpSidecar.Web.Controllers.MessageController do
             Publisher.publish(exchange, routing_key, message, headers)
             send_resp(conn, 200, "Message published")
 
-          {:error, reason} ->
+          {:error, _} ->
             send_resp(conn, 400, "Invalid JSON payload")
         end
 
