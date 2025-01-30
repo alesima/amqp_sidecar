@@ -7,7 +7,7 @@ defmodule AmqpSidecar.Config do
   @config_path Application.compile_env(:amqp_sidecar, :config_path)
 
   def load_config do
-    case File.read(@@config_path) do
+    case File.read(@config_path) do
       {:ok, content} ->
         Jason.decode!(content)
 
