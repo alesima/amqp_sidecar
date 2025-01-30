@@ -1,0 +1,49 @@
+version: 2.1
+
+jobs:
+  test:
+    docker:
+      - image: cimg/elixir:1.13.4
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: |
+            mix local.hex --force
+            mix local.rebar --force
+            mix deps.get
+      - run:
+          name: Run Tests
+          command: mix test
+
+  build-and-push:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache py3-pip
+            pip3 install docker-compose
+      - run:
+          name: Build Docker image
+          command: docker build -t $DOCKERHUB_USERNAME/amqp_sidecar:latest .
+      - run:
+          name: Log in to Docker Hub
+          command: echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+      - run:
+          name: Push Docker Image to Docker Hub
+          command: docker push $DOCKERHUB_USERNAME/amqp_sidecar:latest
+
+workflows:
+  version: 2
+  build-test-and-push:
+    jobs:
+      - test
+      - build-and-push:
+          requires:
+            - test
+          context: dockerhub-credentials
