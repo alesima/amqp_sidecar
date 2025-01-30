@@ -21,3 +21,9 @@ amqp_sidecar-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Environment
+.env
+
+# Config files
+*.json

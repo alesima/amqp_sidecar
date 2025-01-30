@@ -7,7 +7,7 @@ defmodule AmqpSidecar.Publisher do
   alias AMQP.{Connection, Channel, Exhange, Basic}
 
   def publish(exchange, routing_key, message, headers \\ %{}) do
-    connection_config = Application.get_env(:amqp, :connections)[:default]
+    connection_config = Application.get_env(:amqp, :connections)[:default][:url]
 
     {:ok, conn} = Connection.open(connection_config)
     {:ok, chan} = Channel.open(conn)

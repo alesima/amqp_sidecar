@@ -15,7 +15,7 @@ defmodule AmqpSidecar.Consumer do
 
   @impl true
   def init(config) do
-    connection_config = Application.get_env(:amqp, :connections)[:default]
+    connection_config = Application.get_env(:amqp, :connections)[:default][:url]
 
     {:ok, conn} = AMQP.Connection.open(connection_config)
     {:ok, chan} = AMQP.Channel.open(conn)
@@ -34,12 +34,23 @@ defmodule AmqpSidecar.Consumer do
     endpoint_uri = rule["endpointUri"]
 
     case exchange_type do
-      "topic" -> Exchange.topic(chan, exchange, durable: true)
-      "direct" -> Exchange.direct(chan, exchange, durable: true)
-      "fanout" -> Exchange.fanout(chan, exchange, durable: true)
+      "topic" ->
+        Exchange.topic(chan, exchange, durable: true)
+
+      "direct" ->
+        Exchange.direct(chan, exchange, durable: true)
+
+      "fanout" ->
+        Exchange.fanout(chan, exchange, durable: true)
+
       "x-delayed-message" ->
-        delayed_type = exchange_arguments["x-delayed-type"] || raise "x-delayed-type argument is required"
-        Exchange.topic(chan, exchange, durable: true, arguments: [{"x-delayed-type", :longstr, delayed_type}])
+        delayed_type =
+          exchange_arguments["x-delayed-type"] || raise "x-delayed-type argument is required"
+
+        Exchange.topic(chan, exchange,
+          durable: true,
+          arguments: [{"x-delayed-type", :longstr, delayed_type}]
+        )
     end
 
     Queue.declare(chan, queue, durable: true)
@@ -47,6 +58,7 @@ defmodule AmqpSidecar.Consumer do
     case exchange_type do
       "fanout" ->
         Queue.bind(chan, queue, exchange)
+
       _ ->
         Enum.each(routing_keys, &Queue.bind(chan, queue, exchange, routing_key: &1))
     end
@@ -56,6 +68,16 @@ defmodule AmqpSidecar.Consumer do
     Logger.info(
       "Subscribed to exchange #{exchange} with queue #{queue} and routing keys #{routing_keys} for endpoint #{endpoint_uri}"
     )
+  end
+
+  @impl true
+  def handle_info({:basic_consume_ok, %{consumer_tag: _consumer_tag}}, state) do
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info({:basic_cancel, %{consumer_tag: _consumer_tag}}, state) do
+    {:stop, :normal, state}
   end
 
   @impl true

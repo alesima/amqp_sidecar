@@ -1,0 +1,35 @@
+services:
+  amqp_sidecar:
+    image: amqp_sidecar:latest
+    ports:
+      - "4000:4000"
+    environment:
+      - AMQP_URL=${AMQP_URL:-amqp://guest:guest@rabbitmq:5672}
+    volumes:
+      - ./config/broker.json:/app/config/broker.json
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    links:
+      - "rabbitmq:rabbitmq"
+    depends_on:
+      - rabbitmq
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME:-guest}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-guest}
+      - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_VHOST:-/}
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped

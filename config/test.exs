@@ -1,12 +1,7 @@
-# config/config.exs
-import Config
-
+# config/test.exs
 config :amqp,
   connections: [
     default: [
       url: "amqp://guest:guest@localhost:5672/"
     ]
   ]
-
-config :amqp_sidecar,
-  config_path: "config/broker.json"

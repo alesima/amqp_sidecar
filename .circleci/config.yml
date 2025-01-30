@@ -4,7 +4,7 @@ jobs:
   test:
     working_directory: ~/app
     docker:
-      - image: cimg/elixir:1.13.4
+      - image: cimg/elixir:1.17.3-erlang-25.3.2-node
     steps:
       - checkout
       - run:
