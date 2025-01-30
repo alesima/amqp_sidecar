@@ -2,6 +2,7 @@ version: 2.1
 
 jobs:
   test:
+    working_directory: ~/app
     docker:
       - image: cimg/elixir:1.13.4
     steps:
@@ -13,34 +14,35 @@ jobs:
             mix local.rebar --force
             mix deps.get
       - run:
-          name: Run Tests
+          name: Run Elixir Tests
           command: mix test
 
   build-and-push:
+    working_directory: ~/app
     docker:
-      - image: cimg/base:stable
+      - image: cimg/base:2022.09
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
     steps:
       - checkout
       - setup_remote_docker:
           version: 20.10.14
       - run:
-          name: Install dependencies
-          command: |
-            apk add --no-cache py3-pip
-            pip3 install docker-compose
-      - run:
           name: Build Docker image
-          command: docker build -t $DOCKERHUB_USERNAME/amqp_sidecar:latest .
+          command: |
+            TAG=0.1.$CIRCLE_BUILD_NUM
+            docker build -t $DOCKERHUB_USERNAME/amqp_sidecar:$TAG .
       - run:
-          name: Log in to Docker Hub
-          command: echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-      - run:
-          name: Push Docker Image to Docker Hub
-          command: docker push $DOCKERHUB_USERNAME/amqp_sidecar:latest
+          name: Push application Docker image
+          command: |
+            TAG=0.1.$CIRCLE_BUILD_NUM
+            echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
+            docker push $DOCKERHUB_USERNAME/amqp_sidecar:$TAG
 
 workflows:
   version: 2
-  build-test-and-push:
+  build-and-push:
     jobs:
       - test
       - build-and-push:
