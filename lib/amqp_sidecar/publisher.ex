@@ -4,7 +4,7 @@ defmodule AmqpSidecar.Publisher do
   Publishes messages to an AMQP exchange with a given routing key
   """
 
-  alias AMQP.{Connection, Channel, Exhange, Basic}
+  alias AMQP.{Connection, Channel, Basic}
 
   def publish(exchange, routing_key, message, headers \\ %{}) do
     connection_config = Application.get_env(:amqp, :connections)[:default][:url]
