@@ -6,15 +6,6 @@ config :prometheus, AmqpSidecar.PrometheusExporter,
   format: Prometheus.TextFormat,
   registry: :default
 
-config :prometheus,
-  metrics: [
-    Counter.declare(
-      name: :http_requests_total,
-      help: "HTTP request count",
-      labels: [:method, :status]
-    )
-  ]
-
 config :amqp,
   connections: [
     default: [

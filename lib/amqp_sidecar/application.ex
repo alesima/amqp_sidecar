@@ -20,6 +20,7 @@ defmodule AmqpSidecar.Application do
     case Supervisor.start_link(children, opts) do
       {:ok, pid} ->
         Logger.info("Running AMQP Sidecar on port 4000")
+        AmqpSidecar.Metrics.setup()
         {:ok, pid}
 
       {:error, reason} ->

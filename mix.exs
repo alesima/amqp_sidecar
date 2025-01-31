@@ -14,7 +14,7 @@ defmodule AmqpSidecar.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:logger, :prometheus_ex],
       mod: {AmqpSidecar.Application, []}
     ]
   end
@@ -27,6 +27,7 @@ defmodule AmqpSidecar.MixProject do
       {:httpoison, "~> 2.0"},
       {:plug_cowboy, "~> 2.0"},
       {:prometheus_ex, "~> 3.0"},
+      {:prometheus_plugs, "~> 1.1"},
       {:mox, "~> 1.0", only: :test}
     ]
   end
