@@ -2,8 +2,8 @@
 defmodule AmqpSidecar.Web.Router do
   use Plug.Router
 
-  plug(AmqpSidecar.Web.Plugs.Logger)
-  plug(AmqpSidecar.Web.Plugs.PrometheusExporter)
+  plug AmqpSidecar.Web.Plugs.PrometheusExporter
+  plug AmqpSidecar.Web.Plugs.Logger
   plug(:match)
   plug(:dispatch)
 
