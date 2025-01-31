@@ -11,6 +11,11 @@ defmodule AmqpSidecar.Config do
       {:ok, content} ->
         Jason.decode!(content)
 
+      {:error, :enoent} ->
+        if Mix.env() == :prod do
+          raise "Missing config file: #{@config_path}"
+        end
+
       {:error, reason} ->
         raise "Failed to load config: #{reason}"
     end
