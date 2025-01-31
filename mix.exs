@@ -26,6 +26,7 @@ defmodule AmqpSidecar.MixProject do
       {:jason, "~> 1.4"},
       {:httpoison, "~> 2.0"},
       {:plug_cowboy, "~> 2.0"},
+      {:prometheus_ex, "~> 3.0"},
       {:mox, "~> 1.0", only: :test}
     ]
   end

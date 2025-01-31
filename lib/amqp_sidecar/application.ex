@@ -11,8 +11,8 @@ defmodule AmqpSidecar.Application do
 
     children = [
       {AmqpSidecar.Consumer, config},
-      {Plug.Cowboy,
-       scheme: :http, plug: AmqpSidecar.Web.Router, options: [port: 4000, ip: {0, 0, 0, 0}]}
+      {Plug.Cowboy, scheme: :http, plug: AmqpSidecar.Web.Router, options: [port: 4000, ip: {0, 0, 0, 0}]},
+      {AmqpSidecar.Metrics, []}
     ]
 
     opts = [strategy: :one_for_one, name: AmqpSidecar.Supervisor]
