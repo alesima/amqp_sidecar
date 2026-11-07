@@ -52,11 +52,14 @@ defmodule AmqpSidecar.Metrics do
   end
 
   def increment_request(method, status) do
-    Counter.inc([name: :http_requests_total, labels: [method, status]])
+    Counter.inc(name: :http_requests_total, labels: [to_string(method), to_string(status)])
   end
 
   def observe_request_duration(method, status, duration) do
-    Histogram.observe([name: :http_request_duration_seconds, labels: [method, status]], duration)
+    Histogram.observe(
+      [name: :http_request_duration_seconds, labels: [to_string(method), to_string(status)]],
+      duration
+    )
   end
 
   def update_connections(host, count) do

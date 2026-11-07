@@ -27,3 +27,4 @@ amqp_sidecar-*.tar
 
 # Config files
 *.json
+!config/broker.json.example

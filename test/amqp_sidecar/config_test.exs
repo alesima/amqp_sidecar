@@ -41,7 +41,7 @@ defmodule AmqpSidecar.ConfigTest do
         "rules": [
           {
             "exchange": "test_exchange",
-            "queue": "test_queue",
+            "queue": "test_queue"
           }
         ]
       }
@@ -51,7 +51,59 @@ defmodule AmqpSidecar.ConfigTest do
 
       Application.put_env(:amqp_sidecar, :config_path, "test_config.json")
 
-      assert_raise RuntimeError, ~r/Missing 'endpointUri' in config/, fn ->
+      assert_raise RuntimeError, ~r/missing 'routingKeys'/, fn ->
+        AmqpSidecar.Config.load_config() |> AmqpSidecar.Config.validate_config()
+      end
+
+      File.rm("test_config.json")
+    end
+
+    test "raises an error for unknown exchange types" do
+      config_content = """
+      {
+        "rules": [
+          {
+            "exchange": "test_exchange",
+            "exchangeType": "headers",
+            "queue": "test_queue",
+            "routingKeys": ["test.*"],
+            "endpointUri": "http://test-endpoint"
+          }
+        ]
+      }
+      """
+
+      File.write("test_config.json", config_content)
+
+      Application.put_env(:amqp_sidecar, :config_path, "test_config.json")
+
+      assert_raise RuntimeError, ~r/unknown exchangeType/, fn ->
+        AmqpSidecar.Config.load_config() |> AmqpSidecar.Config.validate_config()
+      end
+
+      File.rm("test_config.json")
+    end
+
+    test "requires x-delayed-type for x-delayed-message exchanges" do
+      config_content = """
+      {
+        "rules": [
+          {
+            "exchange": "test_exchange",
+            "exchangeType": "x-delayed-message",
+            "queue": "test_queue",
+            "routingKeys": ["test.*"],
+            "endpointUri": "http://test-endpoint"
+          }
+        ]
+      }
+      """
+
+      File.write("test_config.json", config_content)
+
+      Application.put_env(:amqp_sidecar, :config_path, "test_config.json")
+
+      assert_raise RuntimeError, ~r/x-delayed-type/, fn ->
         AmqpSidecar.Config.load_config() |> AmqpSidecar.Config.validate_config()
       end
 

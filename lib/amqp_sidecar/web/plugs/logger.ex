@@ -22,6 +22,9 @@ defmodule AmqpSidecar.Web.Plugs.Logger do
 
     Logger.info("#{conn.method} #{conn.request_path} - #{conn.status} - #{diff}ms")
 
+    AmqpSidecar.Metrics.increment_request(conn.method, conn.status)
+    AmqpSidecar.Metrics.observe_request_duration(conn.method, conn.status, diff / 1000)
+
     conn
   end
 end

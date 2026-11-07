@@ -42,8 +42,12 @@
    ```
 
 3. Configure the application:
-   - Update the `broker.json` file with your AMQP and endpoint configurations.
-   - Example:
+   - Copy the example config and edit it:
+     ```bash
+     cp config/broker.json.example config/broker.json
+     ```
+     (or mount it as a ConfigMap — see Kubernetes below).
+   - Example `broker.json`:
      ```json
      {
        "rules": [
@@ -57,6 +61,11 @@
        ]
      }
      ```
+   Supported `exchangeType` values: `topic` (default), `direct`, `fanout`,
+   `x-delayed-message` (requires `exchangeArguments: {"x-delayed-type": "<type>"}`).
+   Messages are matched by exchange plus AMQP topic patterns (`*` = one word,
+   `#` = zero or more words). Unmatched messages are acknowledged and dropped
+   with a warning; failed forwards are rejected with requeue.
 
 4. Run the application:
    ```bash
@@ -93,7 +102,7 @@ curl -X POST http://localhost:4000/publish \
 Check the health of the sidecar:
 
 ```bash
-curl -X POST http://localhost:4000/health
+curl http://localhost:4000/health
 ```
 
 ---

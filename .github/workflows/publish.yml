@@ -1,0 +1,46 @@
+name: Publish to Hex
+
+on:
+  push:
+    tags: ['v*']
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Publish to Hex
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: '25'
+          elixir-version: '1.17'
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Run tests
+        run: mix test
+
+      - name: Verify tag matches version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          VER=$(grep -m1 'version:' mix.exs | sed 's/.*"\(.*\)".*/\1/')
+          if [ -n "$TAG" ] && [ "$TAG" != "main" ] && [ "v$VER" != "$TAG" ]; then
+            echo "Tag $TAG does not match mix.exs version $VER"
+            exit 1
+          fi
+
+      - name: Publish package
+        run: |
+          mix local.hex --force
+          mix hex.publish --yes
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}

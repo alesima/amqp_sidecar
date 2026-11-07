@@ -7,7 +7,10 @@ defmodule AmqpSidecar.MixProject do
       version: "0.1.0",
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      description: "Configurable AMQP sidecar for consuming and publishing RabbitMQ messages",
+      package: package(),
+      deps: deps(),
+      elixirc_paths: elixirc_paths(Mix.env())
     ]
   end
 
@@ -31,4 +34,15 @@ defmodule AmqpSidecar.MixProject do
       {:mox, "~> 1.0", only: :test}
     ]
   end
+
+  defp package do
+    [
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/alesima/amqp_sidecar"},
+      files: ~w(lib config mix.exs mix.lock README.md LICENSE)
+    ]
+  end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 end

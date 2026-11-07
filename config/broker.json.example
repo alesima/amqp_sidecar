@@ -1,0 +1,11 @@
+{
+  "rules": [
+    {
+      "exchange": "events",
+      "exchangeType": "topic",
+      "queue": "sidecar.events",
+      "routingKeys": ["events.*"],
+      "endpointUri": "http://localhost:3000/webhooks/events"
+    }
+  ]
+}

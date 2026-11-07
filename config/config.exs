@@ -13,10 +13,4 @@ config :amqp,
     ]
   ]
 
-if Mix.env() == :prod do
-  config :amqp_sidecar,
-    config_path: "config/broker.json"
-else
-  config :amqp_sidecar,
-    config_path: nil
-end
+import_config "#{config_env()}.exs"
